@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horoscopic Space - Daily Cosmic Energy Tracker</title>
+    <style>
+        :root {
+            --bg-space: #0b0914;
+            --bg-card: #151226;
+            --gold-primary: #dfb76c;
+            --gold-secondary: #f3e3be;
+            --text-light: #e2e0eb;
+            --text-muted: #8c88a5;
+            --accent-glow: rgba(223, 183, 108, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-space);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+        }
+
+        header {
+            text-align: center;
+            margin: 30px 0 10px 0;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--gold-primary);
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--accent-glow);
+            text-transform: uppercase;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 15px;
+        }
+
+        /* ADS BANNER CONFIGURATION */
+        .ad-space {
+            background: rgba(21, 18, 38, 0.6);
+            border: 1px dashed rgba(223, 183, 108, 0.3);
+            border-radius: 12px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(223, 183, 108, 0.15);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(223, 183, 108, 0.03);
+            backdrop-filter: blur(5px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: var(--gold-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 14px;
+            background: rgba(11, 9, 20, 0.8);
+            border: 1px solid rgba(223, 183, 108, 0.25);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        input[type="date"]:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #b88e42, #dfb76c);
+            border: none;
+            border-radius: 10px;
+            color: #0b0914;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        button:disabled {
+            background: #4a4538;
+            color: #8c88a5;
+            cursor: not-allowed;
+        }
+
+        /* COSMIC LOADING ANIMATION */
+        .loader-container {
+            display: none;
+            text-align: center;
+            margin: 25px 0 10px 0;
+        }
+
+        .cosmic-ring {
+            width: 45px;
+            height: 45px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--gold-primary);
+            border-bottom: 2px solid var(--gold-primary);
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: spin 1.2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .teks-loading {
+            color: var(--gold-secondary);
+            font-size: 0.8rem;
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        /* OUTPUT OUTPUT RESULTS */
+        .result-container {
+            display: none;
+            margin-top: 25px;
+            border-top: 1px solid rgba(223, 183, 108, 0.15);
+            padding-top: 25px;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .zodiac-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(223, 183, 108, 0.08);
+            border: 1px solid var(--gold-primary);
+            border-radius: 30px;
+            color: var(--gold-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .fortune-text {
+            line-height: 1.7;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            color: #eceaf2;
+            text-align: justify;
+        }
+
+        .share-btn {
+            background: transparent;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            padding: 12px;
+            font-size: 0.85rem;
+        }
+
+        .share-btn:hover {
+            background: rgba(223, 183, 108, 0.08);
+        }
+
+        footer {
+            margin: auto 0 20px 0;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+	
+    .seo-article {
+        margin-top: 40px;
+        padding: 20px;
+        background: rgba(21, 18, 38, 0.4);
+        border-radius: 16px;
+        border: 1px solid rgba(223, 183, 108, 0.1);
+        color: var(--text-light);
+        text-align: left;
+    }
+    .seo-article h2 {
+        color: var(--gold-primary);
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+        font-weight: 400;
+        letter-spacing: 1px;
+    }
+    .seo-article h3 {
+        color: var(--gold-secondary);
+        font-size: 1.1rem;
+        margin: 20px 0 10px 0;
+        font-weight: 500;
+    }
+    .seo-article p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--text-muted);
+        margin-bottom: 15px;
+    }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>horoscopic.space</h1>
+        <p>Daily Cosmic Energy Tracker</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="ad-space">
+            <div>
+                <strong>[BANNER AD SPACE]</strong><br>
+                <small style="color: #585470;">Place AdSense or Native Ad unit here</small>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label for="birthdate">Your Birth Date</label>
+                <input type="date" id="birthdate" required>
+            </div>
+            
+            <button id="btnProses" onclick="bacaNasib()">Align Cosmic Energy</button>
+
+            <div class="loader-container" id="loaderKosmik">
+                <div class="cosmic-ring"></div>
+                <p class="teks-loading">Reading the alignment of the stars...</p>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+                <center><div class="zodiac-badge" id="zodiacBadge">ZODIAC</div></center>
+                <div class="fortune-text" id="fortuneText"></div>
+                <button class="share-btn" onclick="bagikanRamalan()">Share on WhatsApp</button>
+            </div>
+        </div>
+
+        <div class="ad-space" style="min-height: 120px;">
+            <div>
+                <strong>[NATIVE CONTENT AD SPACE]</strong><br>
+                <small style="color: #585470;">Place Responsive Ad unit here</small>
+            </div>
+        </div>
+
+    </div>
+	<div class="seo-article">
+    <h2>Welcome to Your Daily Cosmic Space</h2>
+    <p>Have you ever wondered why some days feel incredibly smooth and full of opportunities, while others invite you to slow down and reflect? Welcome to <strong>horoscopic.space</strong>, your friendly, ad-supported neighborhood portal designed to help you map out your unique <strong>daily cosmic energy</strong>.</p>
+    
+    <p>Unlike traditional static horoscopes that give everyone the exact same generalized reading, our modern <strong>daily cosmic energy tracker</strong> blends your personal zodiac sign with the current alignment of the universe. By tuning into these shifts, you can navigate your day with more mindfulness, gratitude, and confidence.</p>
+
+    <h3>How Does the Cosmic Tracker Work?</h3>
+    <p>Our cosmic system uses a clean, scientific mathematical method known as a seeded random algorithm. 
+	By securely combining your specific birth date with the real-time calendar date, the universe crafts a daily vibe profile that is 
+	uniquely yours for that specific 24-hour cycle. It is consistent, repeatable throughout the day, and resets beautifully every single 
+	morning when a new day dawns.</p>
+
+    <h3>Embracing Your Daily Zodiac Vibe with Kindness</h3>
+    <p>Whether the stars are pointing your focus toward financial growth, romantic harmony, physical wellness, or creative projects, our mission is always to uplift your spirit. Astrology is a beautiful tool for self-reflection and personal growth. Use these daily energy insights as a friendly cosmic companion to inspire your actions, protect your mental peace, and remind you of the magic spinning all around us.</p>
+    
+    <p>Don't forget to bookmark <strong>horoscopic.space</strong> and share your daily cosmic alignment with your friends and loved ones on WhatsApp to spread the positive vibes today!</p>
+	</div>
+
+    <footer>
+	</br>
+	&copy; 2026 horoscopic.space
+    </footer>
+
+    <script>
+        // Friendly US-English Databank Teks Ramalan
+        const arrayEnergi = [
+            "is reaching its beautiful peak, surrounding you with a wonderful aura of confidence and brightness",
+            "is gently shifting into a cozy, resting phase, inviting you to take a comfortable breath and recharge your mind",
+            "is perfectly balanced and harmonious today, wrapping you in peaceful protection and emotional calm",
+            "is dancing with vibrant, exciting sparks that encourage you to embrace spontaneity and try new things",
+            "is guiding you into a lovely reflective cycle, perfect for clearing out old clutter and welcoming fresh vibes"
+        ];
+
+        const arrayFokus = [
+            "your financial wellness. Keep an eye out for a delightful little manifestation or a gentle reminder to budget mindfully.",
+            "the heart center. A meaningful relationship or a special someone is ready to bloom with just a little bit of your warm attention.",
+            "your physical vitality. Your body is gently whispering its needs today, so remember to treat yourself with kind care.",
+            "joyful connections. A simple, casual conversation today holds a beautiful potential to spark a fantastic future opportunity.",
+            "your personal passions. The stars are cheering you on to jump back into a creative hobby or a dream project you truly love."
+        ];
+
+        const arraySaran = [
+            "Try to protect your peace of mind from online noise today; your energy is far too precious to spend on unnecessary thoughts.",
+            "Work your magic quietly behind the scenes today. Let your beautiful plans mature perfectly before showing them to the world.",
+            "Pay close attention to a sudden burst of intuition or a soft sign around late afternoon—the universe is sending you a friendly wink.",
+            "Feel completely free to say 'no' to others if it means saving your own mental clarity. Boundaries are a true form of self-love.",
+            "Take five sweet minutes tonight just to look up at the sky, breathe deeply, and appreciate how far you have beautifully come."
+        ];
+
+        // Zodiac Logic
+        function hitungZodiak(tanggalStr) {
+            const d = new Date(tanggalStr);
+            const tgl = d.getDate();
+            const bln = d.getMonth() + 1;
+
+            if ((bln == 3 && tgl >= 21) || (bln == 4 && tgl <= 19)) return "Aries ♈";
+            if ((bln == 4 && tgl >= 20) || (bln == 5 && tgl <= 20)) return "Taurus ♉";
+            if ((bln == 5 && tgl >= 21) || (bln == 6 && tgl <= 20)) return "Gemini ♊";
+            if ((bln == 6 && tgl >= 21) || (bln == 7 && tgl <= 22)) return "Cancer ♋";
+            if ((bln == 7 && tgl >= 23) || (bln == 8 && tgl <= 22)) return "Leo ♌";
+            if ((bln == 8 && tgl >= 23) || (bln == 9 && tgl <= 22)) return "Virgo ♍";
+            if ((bln == 9 && tgl >= 23) || (bln == 10 && tgl <= 22)) return "Libra ♎";
+            if ((bln == 10 && tgl >= 23) || (bln == 11 && tgl <= 21)) return "Scorpio ♏";
+            if ((bln == 11 && tgl >= 22) || (bln == 12 && tgl <= 21)) return "Sagittarius ♐";
+            if ((bln == 12 && tgl >= 22) || (bln == 1 && tgl <= 19)) return "Capricorn ♑";
+            if ((bln == 1 && tgl >= 20) || (bln == 2 && tgl <= 18)) return "Aquarius ♒";
+            return "Pisces ♓";
+        }
+
+        // Seeded Random Algorithm
+        function dapatkanSeededRandom(seed) {
+            let hash = 0;
+            for (let i = 0; i < seed.length; i++) {
+                hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return Math.abs(hash);
+        }
+
+        // Processing Logic with Animation Control
+        function bacaNasib() {
+            const birthdate = document.getElementById("birthdate").value;
+            if (!birthdate) {
+                alert("Please select your date of birth first.");
+                return;
+            }
+
+            const tombol = document.getElementById("btnProses");
+            const loader = document.getElementById("loaderKosmik");
+            const hasilContainer = document.getElementById("resultContainer");
+
+            hasilContainer.style.display = "none";
+            loader.style.display = "block";
+            tombol.disabled = true;
+            tombol.innerText = "Aligning...";
+
+            setTimeout(() => {
+                loader.style.display = "none";
+                tombol.disabled = false;
+                tombol.innerText = "Align Cosmic Energy";
+
+                const zodiak = hitungZodiak(birthdate);
+
+                // SEED CONFIGURATION: Locks down for 24 Hours based on local date string
+                const hariIni = new Date().toDateString(); 
+                const seedKombinasi = hariIni + birthdate;
+                const angkaAcakUnik = dapatkanSeededRandom(seedKombinasi);
+
+                const energi = arrayEnergi[angkaAcakUnik % arrayEnergi.length];
+                const fokus = arrayFokus[(angkaAcakUnik + 2) % arrayFokus.length]; 
+                const saran = arraySaran[(angkaAcakUnik + 7) % arraySaran.length];
+
+                // Formatted friendly US-style fortune response
+                const kalimatLengkap = `Today, your cosmic energy ${energi}. Your main focus is beautifully flowing toward ${fokus} A gentle reminder from the stars above: ${saran}`;
+
+                document.getElementById("zodiacBadge").innerText = zodiak.toUpperCase();
+                document.getElementById("fortuneText").innerText = kalimatLengkap;
+                hasilContainer.style.display = "block";
+
+            }, 1500);
+        }
+
+        // WhatsApp Share Content Update
+        function bagikanRamalan() {
+            const zodiak = document.getElementById("zodiacBadge").innerText;
+            const teks = document.getElementById("fortuneText").innerText;
+            const pesanWA = encodeURIComponent(`*My Cosmic Energy (${zodiak}) Today:* \n\n"${teks}"\n\nCheck your unique daily vibe for free at: https://horoscopic.space`);
+            window.open(`https://api.whatsapp.com/send?text=${pesanWA}`, '_blank');
+        }
+    </script>
+</body>
+</html>
